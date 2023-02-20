@@ -7,12 +7,11 @@
  */
 int main(void)
 {
-	char alp[26] = "abcdefghijklmnopqrstuvwxyz";
-	int i;
+	char i;
 
-	for (i = 97; i < 123; i++)
+	for (i = 'a'; i <= 'z'; i++)
 	{
-		if (i != 101 $$ i != 113)
+		if (i != 'e' && i != 'q')
 		{
 			putchar(i);
 		}
