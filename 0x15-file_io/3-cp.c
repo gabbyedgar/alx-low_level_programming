@@ -1,42 +1,52 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "main.h"
 
-#define BUFFER_SIZE 1024
+/**
+ * main - Copies the contents of a file to another file.
+ * @argc: The number of arguments supplied to the program.
+ * @argv: An array of pointers to the arguments.
+ *
+ * Return: 0 on success.
+ */
+int main(int argc, char *argv[])
+{
+	int fwwr, fddw, a, b, c;
+	char buf[BUFSIZ];
 
-int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        printf("Usage: %s file_from file_to\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-
-    FILE* file_from = fopen(argv[1], "rb");
-    if (file_from == NULL) {
-        perror("Error: Can't read from file");
-        exit(EXIT_FAILURE);
-    }
-
-    FILE* file_to = fopen(argv[2], "wb");
-    if (file_to == NULL) {
-        perror("Error: Can't write to file");
-        exit(EXIT_FAILURE);
-    }
-
-    char buffer[BUFFER_SIZE];
-    size_t bytes_read, bytes_written;
-    while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, file_from)) > 0) {
-        bytes_written = fwrite(buffer, 1, bytes_read, file_to);
-        if (bytes_written != bytes_read) {
-            perror("Error: Can't write to file");
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    if (ferror(file_from)) {
-        perror("Error: Can't read from file");
-        exit(EXIT_FAILURE);
-    }
-
-    fclose(file_from);
-    fclose(file_to);
-    return 0;
+	if (argc != 3)
+	{
+		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
+		exit(97);
+	}
+	fwwr = open(argv[1], O_RDONLY);
+	if (fwwr < 0)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+		exit(98);
+	}
+	fddw = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
+	while ((a = read(fwwr, buf, BUFSIZ)) > 0)
+	{
+		if (fddw < 0 || write(fddw, buf, a) != a)
+		{
+			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
+			close(fwwr);
+			exit(99);
+		}
+	}
+	if (a < 0)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+		exit(98);
+	}
+	b = close(fwwr);
+	c = close(fddw);
+	if (b < 0 || c < 0)
+	{
+		if (b < 0)
+			dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fwwr);
+		if (c < 0)
+			dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fddw);
+		exit(100);
+	}
+	return (0);
 }
